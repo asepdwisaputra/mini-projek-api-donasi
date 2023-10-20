@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import "api-donasi/routes"
 
 func main() {
-	fmt.Println("tes")
+
+	e := routes.New()
+
+	// start the server, and log if it fails
+	e.Logger.Fatal(e.Start(":8000"))
 }
