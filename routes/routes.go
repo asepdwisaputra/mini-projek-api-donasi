@@ -17,7 +17,7 @@ func New() *echo.Echo {
 	e.POST("/users", controllers.CreateUserController)
 	e.DELETE("/users/:id", controllers.DeleteUserController)
 	e.PUT("/users/:id", controllers.UpdateUserController)
-	e.POST("/users/login", controllers.LoginUserController)
+	e.POST("/login", controllers.LoginUserController)
 
 	e.GET("/campaigns", controllers.GetCampaigns)
 	e.POST("/campaigns", controllers.CreateCampaign)
