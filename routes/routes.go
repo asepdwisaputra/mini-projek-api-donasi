@@ -20,7 +20,8 @@ func New() *echo.Echo {
 	e.POST("/users/login", controllers.LoginUserController)
 
 	e.POST("/campaign", controllers.CreateCampaign)
-	e.POST("/donation", controllers.CreateDonation)
+	e.GET("/donations", controllers.GetDonations)
+	e.POST("/donations", controllers.CreateDonation)
 
 	//Logger Middleware
 	middleware.LogMiddleware(e)
