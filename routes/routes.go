@@ -19,8 +19,8 @@ func New() *echo.Echo {
 	e.PUT("/users/:id", controllers.UpdateUserController)
 	e.POST("/users/login", controllers.LoginUserController)
 
-	e.GET("/campaign", controllers.GetCampaigns)
-	e.POST("/campaign", controllers.CreateCampaign)
+	e.GET("/campaigns", controllers.GetCampaigns)
+	e.POST("/campaigns", controllers.CreateCampaign)
 	e.POST("/donation", controllers.CreateDonation)
 
 	//Logger Middleware
