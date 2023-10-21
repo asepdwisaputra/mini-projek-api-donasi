@@ -226,3 +226,13 @@ func CreateDonation(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, newDonation)
 }
+
+// Mengambil semua data donasi
+func GetDonations(c echo.Context) error {
+	var donations []models.Donation
+	if err := config.DB.Find(&donations).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data donasi"})
+	}
+
+	return c.JSON(http.StatusOK, donations)
+}
