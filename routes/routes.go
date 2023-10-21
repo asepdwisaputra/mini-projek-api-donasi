@@ -32,7 +32,7 @@ func New() *echo.Echo {
 	//Basic Auth Databse
 	eAuthBasic := e.Group("/auth")
 	eAuthBasic.Use(mid.BasicAuth(middleware.BasicAuthDB))
-	eAuthBasic.GET("/users", controllers.GetUserController)
+	eAuthBasic.GET("/users", controllers.GetUsersController)
 
 	//JWT
 	eJWT := e.Group("/jwt")
