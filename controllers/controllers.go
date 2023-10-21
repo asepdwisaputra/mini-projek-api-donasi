@@ -173,6 +173,19 @@ func CreateCampaign(c echo.Context) error {
 	return c.JSON(http.StatusCreated, newCampaign)
 }
 
+// Mengambil Semua Campaign
+func GetCampaigns(c echo.Context) error {
+	var campaigns []models.Campaign
+
+	if err := config.DB.Find(&campaigns).Error; err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":   "success get all campaign",
+		"campaigns": campaigns,
+	})
+}
+
 // Mengambil kampanye berdasar id
 // func GetCampaign(c echo.Context) error {
 //     campaignID := c.Param("id")
