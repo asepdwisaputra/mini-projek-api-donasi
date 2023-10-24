@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 // get all users
@@ -170,6 +172,18 @@ func CreateCampaign(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal membuat kampanye"})
 	}
 
+	// Kemudian, mengambil data kampanye dengan Preload
+	if err := config.DB.Preload("User").First(newCampaign).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			// Kasus ini terjadi jika data kampanye tidak ditemukan.
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Data kampanye tidak ditemukan"})
+		} else {
+			// Kesalahan lain yang mungkin terjadi selain RecordNotFoundError.
+			log.Error(err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil data kampanye"})
+		}
+	}
+
 	return c.JSON(http.StatusCreated, newCampaign)
 }
 
@@ -177,13 +191,19 @@ func CreateCampaign(c echo.Context) error {
 func GetCampaigns(c echo.Context) error {
 	var campaigns []models.Campaign
 
-	if err := config.DB.Find(&campaigns).Error; err != nil {
+	if err := config.DB.Preload("User").Find(&campaigns).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":   "success get all campaign",
-		"campaigns": campaigns,
-	})
+	// Membuat struktur data baru untuk respons dengan key mapping dalam huruf kecil
+	var response struct {
+		Message   string            `json:"message"`
+		Campaigns []models.Campaign `json:"campaigns"`
+	}
+
+	response.Message = "success get all campaign"
+	response.Campaigns = campaigns
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // Mengambil kampanye berdasar id

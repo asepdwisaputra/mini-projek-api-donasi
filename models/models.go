@@ -5,20 +5,20 @@ import (
 )
 
 type User struct {
-	ID        int    `gorm:"primary_key"`
-	Name      string `json:"name" form:"name"`
-	Telephone int    `json:"telephone" form:"telephone"`
-	Email     string `json:"email" form:"email"`
-	Password  string `json:"password" form:"password"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `sql:"index"`
+	ID        int        `gorm:"primary_key" json:"id"`
+	Name      string     `json:"name" form:"name"`
+	Telephone int        `json:"telephone" form:"telephone"`
+	Email     string     `json:"email" form:"email"`
+	Password  string     `json:"password" form:"password"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `sql:"index" json:"deleted_at"`
 
 	// Hubungan User dengan Campaign (One-to-Many)
-	Campaigns []Campaign `gorm:"foreignkey:UserID"`
+	//Campaigns []Campaign `gorm:"foreignkey:UserID"`
 
 	// Hubungan User dengan Donation (One-to-Many)
-	Donations []Donation `gorm:"foreignkey:UserID"`
+	//Donations []Donation `gorm:"foreignkey:UserID"`
 }
 
 type UserResponseJWT struct {
@@ -27,6 +27,13 @@ type UserResponseJWT struct {
 	Email string `json:"email" form:"email"`
 	Token string `json:"token" form:"token"`
 }
+
+// type UserResponse struct {
+// 	ID        int    `json:"id" form:"id"`
+// 	Name      string `json:"name" form:"name"`
+// 	Email     string `json:"email" form:"email"`
+// 	Telephone int    `json:"telephone" form:"telephone"`
+// }
 
 type Campaign struct {
 	ID             int       `json:"id" form:"id"`
@@ -40,10 +47,11 @@ type Campaign struct {
 	TotalCollected float64   `json:"total_collected" form:"total_collected"`
 
 	// Foreign Key ke User
-	UserID int `json:"user_id" gorm:"foreignkey:ID"`
+	UserID int `json:"user_id"`
+	//ABAIKAN INI--gorm:"foreignkey:ID"
 
 	// Hubungan Campaign dengan User
-	//User User `gorm:"foreignkey:UserID"` // Juga mendefinisikan hubungan Campaign dengan User
+	User User `gorm:"foreignkey:UserID" json:"user"` // Juga mendefinisikan hubungan Campaign dengan User
 
 	// // Hubungan Campaign dengan Donation (One-to-Many)
 	// Donations []Donation `gorm:"foreignkey:CampaignID"`
