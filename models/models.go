@@ -2,17 +2,19 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        int        `gorm:"primary_key" json:"id"`
-	Name      string     `json:"name" form:"name"`
-	Telephone int        `json:"telephone" form:"telephone"`
-	Email     string     `json:"email" form:"email"`
-	Password  string     `json:"password" form:"password"`
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `sql:"index" json:"deleted_at"`
+	ID        int            `gorm:"primary_key" json:"id"`
+	Name      string         `json:"name" form:"name"`
+	Telephone string         `json:"telephone" form:"telephone"`
+	Email     string         `json:"email" form:"email"`
+	Password  string         `json:"password" form:"password"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `sql:"index" json:"deleted_at"`
 
 	// Hubungan User dengan Campaign (One-to-Many)
 	//Campaigns []Campaign `gorm:"foreignkey:UserID"`
@@ -32,7 +34,7 @@ type UserResponseJWT struct {
 // 	ID        int    `json:"id" form:"id"`
 // 	Name      string `json:"name" form:"name"`
 // 	Email     string `json:"email" form:"email"`
-// 	Telephone int    `json:"telephone" form:"telephone"`
+// 	Telephone string    `json:"telephone" form:"telephone"`
 // }
 
 type Campaign struct {
@@ -41,7 +43,7 @@ type Campaign struct {
 	Description    string    `json:"description" form:"description"`
 	Start          time.Time `json:"start" form:"start"`
 	End            time.Time `json:"end" form:"end"`
-	CPocket        int       `json:"cpocket" form:"cpocket"`
+	CPocket        string    `json:"cpocket" form:"cpocket"`
 	Status         string    `json:"status" form:"status"`
 	Photo          string    `json:"photo" form:"photo"`
 	TotalCollected float64   `json:"total_collected" form:"total_collected"`

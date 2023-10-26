@@ -81,14 +81,16 @@ func DeleteUserController(c echo.Context) error {
 			"error": "User Not Found",
 		})
 	}
-	// Hapus
-	if err := config.DB.Delete(&user).Error; err != nil {
+
+	// Soft Delete user
+	if err := config.DB.Delete(&user, id).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
-			"error": "Failed to Delete User",
+			"error": "Failed to Soft Delete User",
 		})
 	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Success Delete User",
+		"message": "Success Soft Delete User",
 	})
 }
 
@@ -200,23 +202,26 @@ func GetCampaigns(c echo.Context) error {
 		Campaigns []models.Campaign `json:"campaigns"`
 	}
 
-	response.Message = "success get all campaign"
+	response.Message = "Success Get All Campaign"
 	response.Campaigns = campaigns
 
 	return c.JSON(http.StatusOK, response)
 }
 
 // Mengambil kampanye berdasar id
-// func GetCampaign(c echo.Context) error {
-//     campaignID := c.Param("id")
+func GetCampaign(c echo.Context) error {
+	campaignID := c.Param("id")
 
-//     var campaign models.Campaign
-//     if err := config.DB.Preload("User").Where("id = ?", campaignID).First(&campaign).Error; err != nil {
-//         return c.JSON(http.StatusNotFound, map[string]string{"error": "Kampanye tidak ditemukan"})
-//     }
+	var campaign models.Campaign
+	if err := config.DB.Preload("User").Where("id = ?", campaignID).First(&campaign).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "Kampanye tidak ditemukan"})
+	}
 
-//     return c.JSON(http.StatusOK, campaign)
-// }
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Get Campaign",
+		"campaign": campaign,
+	})
+}
 
 // Mendapatkan donasi yang baru dibuat
 func CreateDonation(c echo.Context) error {

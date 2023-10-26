@@ -17,10 +17,12 @@ func New() *echo.Echo {
 	e.POST("/users", controllers.CreateUserController)
 	e.DELETE("/users/:id", controllers.DeleteUserController)
 	e.PUT("/users/:id", controllers.UpdateUserController)
-	e.POST("/users/login", controllers.LoginUserController)
+	e.POST("/login", controllers.LoginUserController) // Create token
 
 	e.GET("/campaigns", controllers.GetCampaigns)
+	e.GET("/campaigns/:id", controllers.GetCampaign)
 	e.POST("/campaigns", controllers.CreateCampaign)
+
 	e.POST("/donation", controllers.CreateDonation)
 
 	//Logger Middleware
@@ -30,7 +32,7 @@ func New() *echo.Echo {
 	//Basic Auth Databse
 	eAuthBasic := e.Group("/auth")
 	eAuthBasic.Use(mid.BasicAuth(middleware.BasicAuthDB))
-	eAuthBasic.GET("/users", controllers.GetUserController)
+	eAuthBasic.GET("/users", controllers.GetUsersController)
 
 	//JWT
 	eJWT := e.Group("/jwt")
