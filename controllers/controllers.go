@@ -4,6 +4,7 @@ import (
 	"api-donasi/config"
 	"api-donasi/middleware"
 	"api-donasi/models"
+	"api-donasi/responses"
 	"net/http"
 	"strconv"
 
@@ -197,13 +198,15 @@ func GetCampaigns(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	// Membuat struktur data baru untuk respons dengan key mapping dalam huruf kecil
-	var response struct {
-		Message   string            `json:"message"`
-		Campaigns []models.Campaign `json:"campaigns"`
-	}
+	// var response struct {
+	// 	Message   string            `json:"message"`
+	// 	Campaigns []responses.ResponseCampaign `json:"campaigns"`
+	// }
 
-	response.Message = "Success Get All Campaign"
-	response.Campaigns = campaigns
+	// response.Message = "Success Get All Campaign"
+	// response.Campaigns = campaigns
+
+	response := responses.GetCampaignResponse(campaigns)
 
 	return c.JSON(http.StatusOK, response)
 }

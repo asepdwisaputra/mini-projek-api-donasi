@@ -24,7 +24,7 @@ func New() *echo.Echo {
 	e.GET("/campaigns/:id", controllers.GetCampaign)
 	//e.POST("/campaigns", controllers.CreateCampaign)
 
-	// e.GET("/donations", controllers.GetDonations)
+	e.GET("/donations", controllers.GetDonations)
 	// e.GET("/donations/:id", controllers.GetDonationByID)
 	// e.GET("/donations/user/:id", controllers.GetDonationsByUserID)
 	// e.POST("/donations", controllers.CreateDonation)
