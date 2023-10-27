@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 )
 
@@ -224,7 +225,10 @@ func CreateDonation(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal membuat donasi"})
 	}
 
-	return c.JSON(http.StatusCreated, newDonation)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"donation": newDonation,
+		"message":  "success create donation",
+	})
 }
 
 // Mengambil semua data donasi
@@ -234,5 +238,54 @@ func GetDonations(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data donasi"})
 	}
 
-	return c.JSON(http.StatusOK, donations)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"donation": donations,
+		"message":  "success get all donation",
+	})
+}
+
+// Mengambil data donasi berdasar id
+func GetDonationByID(c echo.Context) error {
+	// Mendapatkan ID donasi dari parameter URL
+	donationID := c.Param("id")
+
+	// Membuat objek Donasi untuk menampung hasil
+	var donation models.Donation
+
+	// Mengambil donasi berdasarkan ID
+	if err := config.DB.First(&donation, donationID).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			// Kasus donasi tidak ditemukan
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Donasi tidak ditemukan"})
+		} else {
+			// Kesalahan lain yang mungkin terjadi
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil donasi"})
+		}
+	}
+
+	// Jika donasi ditemukan, kembalikan respons JSON
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"donation": donation,
+		"message":  "success get donation by id",
+	})
+}
+
+// Mengambil semua data donasi berdasarkan ID pengguna
+func GetDonationsByUserID(c echo.Context) error {
+	// Mendapatkan ID pengguna dari parameter URL
+	userID := c.Param("id")
+
+	// Membuat slice untuk menampung donasi oleh pengguna
+	var donations []models.Donation
+
+	// Mengambil donasi berdasarkan ID pengguna
+	if err := config.DB.Where("user_id = ?", userID).Find(&donations).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil donasi"})
+	}
+
+	// Kembalikan daftar donasi dalam format JSON
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"donation": donations,
+		"message":  "success get donation by user id",
+	})
 }
