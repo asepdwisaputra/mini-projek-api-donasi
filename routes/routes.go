@@ -17,9 +17,11 @@ func New() *echo.Echo {
 	e.POST("/users", controllers.CreateUserController)
 	e.DELETE("/users/:id", controllers.DeleteUserController)
 	e.PUT("/users/:id", controllers.UpdateUserController)
-	e.POST("/login", controllers.LoginUserController)
+
+	e.POST("/login", controllers.LoginUserController) // Create token
 
 	e.GET("/campaigns", controllers.GetCampaigns)
+	e.GET("/campaigns/:id", controllers.GetCampaign)
 	e.POST("/campaigns", controllers.CreateCampaign)
 
 	e.GET("/donations", controllers.GetDonations)

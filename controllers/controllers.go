@@ -9,6 +9,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 // get all users
@@ -80,14 +81,16 @@ func DeleteUserController(c echo.Context) error {
 			"error": "User Not Found",
 		})
 	}
-	// Hapus
-	if err := config.DB.Delete(&user).Error; err != nil {
+
+	// Soft Delete user
+	if err := config.DB.Delete(&user, id).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, map[string]interface{}{
-			"error": "Failed to Delete User",
+			"error": "Failed to Soft Delete User",
 		})
 	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Success Delete User",
+		"message": "Success Soft Delete User",
 	})
 }
 
@@ -171,6 +174,18 @@ func CreateCampaign(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal membuat kampanye"})
 	}
 
+	// Kemudian, mengambil data kampanye dengan Preload
+	if err := config.DB.Preload("User").First(newCampaign).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			// Kasus ini terjadi jika data kampanye tidak ditemukan.
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Data kampanye tidak ditemukan"})
+		} else {
+			// Kesalahan lain yang mungkin terjadi selain RecordNotFoundError.
+			log.Error(err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil data kampanye"})
+		}
+	}
+
 	return c.JSON(http.StatusCreated, newCampaign)
 }
 
@@ -178,26 +193,35 @@ func CreateCampaign(c echo.Context) error {
 func GetCampaigns(c echo.Context) error {
 	var campaigns []models.Campaign
 
-	if err := config.DB.Find(&campaigns).Error; err != nil {
+	if err := config.DB.Preload("User").Find(&campaigns).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":   "success get all campaign",
-		"campaigns": campaigns,
-	})
+	// Membuat struktur data baru untuk respons dengan key mapping dalam huruf kecil
+	var response struct {
+		Message   string            `json:"message"`
+		Campaigns []models.Campaign `json:"campaigns"`
+	}
+
+	response.Message = "Success Get All Campaign"
+	response.Campaigns = campaigns
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // Mengambil kampanye berdasar id
-// func GetCampaign(c echo.Context) error {
-//     campaignID := c.Param("id")
+func GetCampaign(c echo.Context) error {
+	campaignID := c.Param("id")
 
-//     var campaign models.Campaign
-//     if err := config.DB.Preload("User").Where("id = ?", campaignID).First(&campaign).Error; err != nil {
-//         return c.JSON(http.StatusNotFound, map[string]string{"error": "Kampanye tidak ditemukan"})
-//     }
+	var campaign models.Campaign
+	if err := config.DB.Preload("User").Where("id = ?", campaignID).First(&campaign).Error; err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "Kampanye tidak ditemukan"})
+	}
 
-//     return c.JSON(http.StatusOK, campaign)
-// }
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Get Campaign",
+		"campaign": campaign,
+	})
+}
 
 // Mendapatkan donasi yang baru dibuat
 func CreateDonation(c echo.Context) error {
