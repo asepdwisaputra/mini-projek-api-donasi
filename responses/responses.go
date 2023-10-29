@@ -29,6 +29,20 @@ type ResponseDonation struct {
 	Campaign ResponseCampaign `json:"campaign"`
 }
 
+// Fungsi Respon untuk User
+func GetUserResponse(users []models.User) []ResponseUser {
+	var response []ResponseUser
+
+	for _, user := range users {
+		response = append(response, ResponseUser{
+			ID:    user.ID,
+			Name:  user.Name,
+			Email: user.Email,
+		})
+	}
+	return response
+}
+
 // Fungsi Respon untuk Campaign
 func GetCampaignResponse(campaigns []models.Campaign) []ResponseCampaign {
 	var response []ResponseCampaign
@@ -47,7 +61,6 @@ func GetCampaignResponse(campaigns []models.Campaign) []ResponseCampaign {
 			},
 		})
 	}
-
 	return response
 }
 

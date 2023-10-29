@@ -52,7 +52,7 @@ type Campaign struct {
 	DeletedAt      gorm.DeletedAt `sql:"index" json:"deleted_at"`
 
 	// Foreign Key ke User
-	UserID int `json:"user_id" gorm:"foreignkey:ID`
+	UserID int `json:"user_id"`
 	//ABAIKAN INI--gorm:"foreignkey:ID"
 
 	// Hubungan Campaign dengan User

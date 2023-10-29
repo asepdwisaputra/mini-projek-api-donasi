@@ -20,9 +20,12 @@ func GetUsersController(c echo.Context) error {
 	if err := config.DB.Find(&users).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	response := responses.GetUserResponse(users)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"users":   response,
 		"message": "Success Get All Users",
-		"users":   users,
 	})
 }
 
@@ -35,7 +38,7 @@ func GetUserController(c echo.Context) error {
 		})
 	}
 	// Cek id di user
-	var user models.User
+	var user []models.User
 	if err := config.DB.First(&user, id).Error; err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, map[string]interface{}{
 			"error": "User not found",
@@ -47,9 +50,12 @@ func GetUserController(c echo.Context) error {
 			"error": "Failed to update user",
 		})
 	}
+
+	response := responses.GetUserResponse(user)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"user":    response,
 		"message": "Success Get User",
-		"user":    user,
 	})
 }
 
@@ -61,9 +67,17 @@ func CreateUserController(c echo.Context) error {
 	if err := config.DB.Save(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	// menampilkan respon sesuai keinginan kita
+	var userParameter []models.User
+	if err := config.DB.Order("updated_at desc").Limit(1).Find(&userParameter).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data user"})
+	}
+	response := responses.GetUserResponse(userParameter)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"user":    response,
 		"message": "Success Create New User",
-		"user":    user,
 	})
 }
 
@@ -120,9 +134,17 @@ func UpdateUserController(c echo.Context) error {
 	if err := config.DB.Save(&user).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
+	// menampilkan respon sesuai keinginan kita
+	var userParameter []models.User
+	if err := config.DB.Order("updated_at desc").Limit(1).Find(&userParameter).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data user"})
+	}
+	response := responses.GetUserResponse(userParameter)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"user":    response,
 		"message": "Success Update User",
-		"user":    user,
 	})
 }
 
@@ -151,8 +173,8 @@ func LoginUserController(c echo.Context) error {
 	userResponJWT := models.UserResponseJWT{user.ID, user.Name, user.Email, token}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Success Create User",
 		"user":    userResponJWT,
+		"message": "Success Create User",
 	})
 }
 
