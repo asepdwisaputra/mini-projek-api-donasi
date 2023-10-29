@@ -258,6 +258,18 @@ func CreateDonation(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error creating Donation"})
 	}
 
+	// return c.JSON(http.StatusOK, map[string]interface{}{
+	// 	"donation": newDonation,
+	// 	"message":  "success create donation",
+	// })
+
+	var donation []models.Donation
+	if err := config.DB.Preload("User").Preload("Campaign").Order("updated_at desc").Limit(1).Find(&donation).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data donasi"})
+	}
+
+	response := responses.GetDonationResponse(donation)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":  "Success Create Donation",
 		"donation": newDonation,
@@ -267,13 +279,16 @@ func CreateDonation(c echo.Context) error {
 // Mengambil semua data donasi
 func GetDonations(c echo.Context) error {
 	var donations []models.Donation
-	if err := config.DB.Find(&donations).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error Getting Donation"})
+
+	if err := config.DB.Preload("User").Preload("Campaign").Find(&donations).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data donasi"})
 	}
 
+	response := responses.GetDonationResponse(donations)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":  "Success Get Donations",
-		"donation": donations,
+		"message":  "Success Get All Donation",
+		"donation": response,
 	})
 }
 
@@ -283,10 +298,10 @@ func GetDonationByID(c echo.Context) error {
 	donationID := c.Param("id")
 
 	// Membuat objek Donasi untuk menampung hasil
-	var donation models.Donation
+	var donation []models.Donation
 
 	// Mengambil donasi berdasarkan ID
-	if err := config.DB.First(&donation, donationID).Error; err != nil {
+	if err := config.DB.Preload("User").Preload("Campaign").First(&donation, donationID).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			// Kasus donasi tidak ditemukan
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Donation Not Found"})
@@ -296,10 +311,12 @@ func GetDonationByID(c echo.Context) error {
 		}
 	}
 
+	response := responses.GetDonationResponse(donation)
+
 	// Jika donasi ditemukan, kembalikan respons JSON
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":  "Success Get Donation By Id",
-		"donation": donation,
+		"donation": response,
 	})
 }
 
@@ -312,13 +329,15 @@ func GetDonationsByUserID(c echo.Context) error {
 	var donations []models.Donation
 
 	// Mengambil donasi berdasarkan ID pengguna
-	if err := config.DB.Where("user_id = ?", userID).Find(&donations).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error getting Data Donation"})
+	if err := config.DB.Preload("User").Preload("Campaign").Where("user_id = ?", userID).Find(&donations).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil donasi"})
 	}
+
+	response := responses.GetDonationResponse(donations)
 
 	// Kembalikan daftar donasi dalam format JSON
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":  "Success Get Donation By User Id",
-		"donation": donations,
+		"donation": response,
 	})
 }

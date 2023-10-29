@@ -38,15 +38,18 @@ type UserResponseJWT struct {
 // }
 
 type Campaign struct {
-	ID             int       `json:"id" form:"id"`
-	Title          string    `json:"title" form:"title"`
-	Description    string    `json:"description" form:"description"`
-	Start          time.Time `json:"start" form:"start"`
-	End            time.Time `json:"end" form:"end"`
-	CPocket        string    `json:"cpocket" form:"cpocket"`
-	Status         string    `json:"status" form:"status"`
-	Photo          string    `json:"photo" form:"photo"`
-	TotalCollected float64   `json:"total_collected" form:"total_collected"`
+	ID             int            `json:"id" form:"id"`
+	Title          string         `json:"title" form:"title"`
+	Description    string         `json:"description" form:"description"`
+	Start          time.Time      `json:"start" form:"start"`
+	End            time.Time      `json:"end" form:"end"`
+	CPocket        string         `json:"cpocket" form:"cpocket"`
+	Status         string         `json:"status" form:"status"`
+	Photo          string         `json:"photo" form:"photo"`
+	TotalCollected float64        `json:"total_collected" form:"total_collected"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	DeletedAt      gorm.DeletedAt `sql:"index" json:"deleted_at"`
 
 	// Foreign Key ke User
 	UserID int `json:"user_id"`
@@ -60,15 +63,26 @@ type Campaign struct {
 }
 
 type Donation struct {
-	ID     int       `json:"id" form:"id"`
-	Amount float64   `json:"amount" form:"amount"`
-	Date   time.Time `json:"date" form:"date"`
-	Status string    `json:"status" form:"status"`
+	ID        int            `json:"id" form:"id"`
+	Amount    float64        `json:"amount" form:"amount"`
+	Date      time.Time      `json:"date" form:"date"`
+	Status    string         `json:"status" form:"status"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `sql:"index" json:"deleted_at"`
 
 	// Foreign Key ke User
-	UserID int `json:"user_id" gorm:"foreignkey:ID"`
+	UserID int `json:"user_id"`
+	//ABAIKAN INI--gorm:"foreignkey:ID"
+
+	// Hubungan Donation dengan User
+	User User `gorm:"foreignkey:UserID" json:"user"`
+
 	// Foreign Key ke Campaign
-	CampaignID int `json:"campaign_id" gorm:"foreignkey:ID"`
+	CampaignID int `json:"campaign_id"` //ABAIKAN INI--gorm:"foreignkey:ID"
+
+	// Hubungan Donation dengan User
+	Campaign Campaign `gorm:"foreignkey:CampaignID" json:"campaign"`
 
 	// // Sebuah hook Gorm sebelum membuat donasi
 	// BeforeCreate(scope *gorm.Scope) error {
