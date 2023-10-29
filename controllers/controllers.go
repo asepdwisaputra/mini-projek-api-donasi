@@ -271,8 +271,8 @@ func CreateDonation(c echo.Context) error {
 	response := responses.GetDonationResponse(donation)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":  "Success Create Donation",
-		"donation": newDonation,
+		"message":  "Success Create and Show Donation",
+		"donation": response,
 	})
 }
 
