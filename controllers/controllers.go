@@ -21,7 +21,7 @@ func GetUsersController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success get all users",
+		"message": "Success Get All Users",
 		"users":   users,
 	})
 }
@@ -62,7 +62,7 @@ func CreateUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success create new user",
+		"message": "Success Create New User",
 		"user":    user,
 	})
 }
@@ -107,7 +107,7 @@ func UpdateUserController(c echo.Context) error {
 	var user models.User
 	if err := config.DB.First(&user, id).Error; err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, map[string]interface{}{
-			"error": "User not found",
+			"error": "User Not Found",
 		})
 	}
 	// Binding datanya
@@ -161,33 +161,36 @@ func CreateCampaign(c echo.Context) error {
 	// Mendapatkan data kampanye yang baru dibuat
 	newCampaign := &models.Campaign{}
 	if err := c.Bind(newCampaign); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Data kampanye tidak valid"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Campaign Data Not Valid"})
 	}
 
 	// Periksa apakah pengguna dengan ID yang sesuai ada
 	var user models.User
 	if err := config.DB.Where("ID = ?", newCampaign.UserID).First(&user).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "ID pengguna tidak valid"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "User ID Not Valid"})
 	}
 
 	// Menyimpan kampanye ke database
 	if err := config.DB.Create(newCampaign).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal membuat kampanye"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error Creating Campaign"})
 	}
 
 	// Kemudian, mengambil data kampanye dengan Preload
 	if err := config.DB.Preload("User").First(newCampaign).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			// Kasus ini terjadi jika data kampanye tidak ditemukan.
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "Data kampanye tidak ditemukan"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Campaign Not Found"})
 		} else {
 			// Kesalahan lain yang mungkin terjadi selain RecordNotFoundError.
 			log.Error(err)
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil data kampanye"})
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error Geting Campaign Data"})
 		}
 	}
 
-	return c.JSON(http.StatusCreated, newCampaign)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Create New Campaign",
+		"campaign": newCampaign,
+	})
 }
 
 // Mengambil Semua Campaign
@@ -215,28 +218,31 @@ func GetCampaigns(c echo.Context) error {
 func GetCampaign(c echo.Context) error {
 	campaignID := c.Param("id")
 
-	var campaign models.Campaign
+	var campaign []models.Campaign
 	if err := config.DB.Preload("User").Where("id = ?", campaignID).First(&campaign).Error; err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "Kampanye tidak ditemukan"})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":  "Success Get Campaign",
-		"campaign": campaign,
-	})
+	// return c.JSON(http.StatusOK, map[string]interface{}{
+	// 	"message":  "Success Get Campaign",
+	// 	"campaign": campaign,
+	// })
+	response := responses.GetCampaignResponse(campaign)
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // Mendapatkan donasi yang baru dibuat
 func CreateDonation(c echo.Context) error {
 	newDonation := &models.Donation{}
 	if err := c.Bind(newDonation); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Data donasi tidak valid"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Data Not Valid"})
 	}
 
 	// Mendapatkan kampanye yang sesuai dari database
 	campaign := &models.Campaign{}
 	if err := config.DB.Where("ID = ?", newDonation.CampaignID).First(campaign).Error; err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "Kampanye tidak ditemukan"})
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "Campaign Not Found"})
 	}
 
 	// Menambahkan nilai Amount ke TotalCollected
@@ -244,17 +250,17 @@ func CreateDonation(c echo.Context) error {
 
 	// Menyimpan perubahan ke database
 	if err := config.DB.Save(campaign).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menyimpan kampanye"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error Saving Campaign"})
 	}
 
 	// Menyimpan donasi ke database
 	if err := config.DB.Create(newDonation).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal membuat donasi"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error creating Donation"})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Create Donation",
 		"donation": newDonation,
-		"message":  "success create donation",
 	})
 }
 
@@ -262,12 +268,12 @@ func CreateDonation(c echo.Context) error {
 func GetDonations(c echo.Context) error {
 	var donations []models.Donation
 	if err := config.DB.Find(&donations).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data donasi"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error Getting Donation"})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Get Donations",
 		"donation": donations,
-		"message":  "success get all donation",
 	})
 }
 
@@ -283,17 +289,17 @@ func GetDonationByID(c echo.Context) error {
 	if err := config.DB.First(&donation, donationID).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			// Kasus donasi tidak ditemukan
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "Donasi tidak ditemukan"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Donation Not Found"})
 		} else {
 			// Kesalahan lain yang mungkin terjadi
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil donasi"})
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error Getting Data Donation"})
 		}
 	}
 
 	// Jika donasi ditemukan, kembalikan respons JSON
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Get Donation By Id",
 		"donation": donation,
-		"message":  "success get donation by id",
 	})
 }
 
@@ -307,12 +313,12 @@ func GetDonationsByUserID(c echo.Context) error {
 
 	// Mengambil donasi berdasarkan ID pengguna
 	if err := config.DB.Where("user_id = ?", userID).Find(&donations).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Terjadi kesalahan saat mengambil donasi"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error getting Data Donation"})
 	}
 
 	// Kembalikan daftar donasi dalam format JSON
 	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Get Donation By User Id",
 		"donation": donations,
-		"message":  "success get donation by user id",
 	})
 }
