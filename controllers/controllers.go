@@ -230,19 +230,30 @@ func CreateCampaign(c echo.Context) error {
 
 // Mengambil Semua Campaign
 func GetCampaigns(c echo.Context) error {
+	status := c.QueryParam("status")
+	title := c.QueryParam("title")
+
 	var campaigns []models.Campaign
+	db := config.DB.Preload("User")
 
-	if err := config.DB.Preload("User").Find(&campaigns).Error; err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	// Membuat query dasar dengan Preload
+	query := db.Model(&models.Campaign{})
+
+	// Mengecek apakah parameter "title" dan "status" ada
+	if title != "" {
+		// Jika parameter "title" ada, gunakan LIKE
+		query = query.Where("title LIKE ?", "%"+title+"%")
 	}
-	// Membuat struktur data baru untuk respons dengan key mapping dalam huruf kecil
-	// var response struct {
-	// 	Message   string            `json:"message"`
-	// 	Campaigns []responses.ResponseCampaign `json:"campaigns"`
-	// }
 
-	// response.Message = "Success Get All Campaign"
-	// response.Campaigns = campaigns
+	if status != "" {
+		// Jika parameter "status" ada, gunakan LIKE
+		query = query.Where("status LIKE ?", "%"+status+"%")
+	}
+
+	// Eksekusi query
+	if err := query.Find(&campaigns).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error Getting Campaigns"})
+	}
 
 	response := responses.GetCampaignResponse(campaigns)
 
