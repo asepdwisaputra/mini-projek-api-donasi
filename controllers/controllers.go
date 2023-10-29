@@ -187,9 +187,22 @@ func CreateCampaign(c echo.Context) error {
 		}
 	}
 
+	// return c.JSON(http.StatusOK, map[string]interface{}{
+	// 	"message":  "Success Create New Campaign",
+	// 	"campaign": newCampaign,
+	// })
+
+	// menampilkan respon sesuai keinginan kita
+	var campaign []models.Campaign
+	if err := config.DB.Preload("User").Order("updated_at desc").Limit(1).Find(&campaign).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Gagal menampilkan data campaign"})
+	}
+
+	response := responses.GetCampaignResponse(campaign)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message":  "Success Create New Campaign",
-		"campaign": newCampaign,
+		"campaign": response,
 	})
 }
 
@@ -211,7 +224,10 @@ func GetCampaigns(c echo.Context) error {
 
 	response := responses.GetCampaignResponse(campaigns)
 
-	return c.JSON(http.StatusOK, response)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Get All Campaign",
+		"campaign": response,
+	})
 }
 
 // Mengambil kampanye berdasar id
@@ -229,7 +245,10 @@ func GetCampaign(c echo.Context) error {
 	// })
 	response := responses.GetCampaignResponse(campaign)
 
-	return c.JSON(http.StatusOK, response)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Success Get Campaign",
+		"campaign": response,
+	})
 }
 
 // Mendapatkan donasi yang baru dibuat

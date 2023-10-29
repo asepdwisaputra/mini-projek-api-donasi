@@ -38,7 +38,7 @@ type UserResponseJWT struct {
 // }
 
 type Campaign struct {
-	ID             int            `json:"id" form:"id"`
+	ID             int            `json:"id"`
 	Title          string         `json:"title" form:"title"`
 	Description    string         `json:"description" form:"description"`
 	Start          time.Time      `json:"start" form:"start"`
@@ -52,7 +52,7 @@ type Campaign struct {
 	DeletedAt      gorm.DeletedAt `sql:"index" json:"deleted_at"`
 
 	// Foreign Key ke User
-	UserID int `json:"user_id"`
+	UserID int `json:"user_id" gorm:"foreignkey:ID`
 	//ABAIKAN INI--gorm:"foreignkey:ID"
 
 	// Hubungan Campaign dengan User

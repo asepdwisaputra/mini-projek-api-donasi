@@ -12,22 +12,22 @@ import (
 func New() *echo.Echo {
 	e := echo.New()
 
-	// e.GET("/users", controllers.GetUsersController)
-	// e.GET("/users/:id", controllers.GetUserController)
+	e.GET("/users", controllers.GetUsersController)
+	e.GET("/users/:id", controllers.GetUserController)
 	e.POST("/users", controllers.CreateUserController)
-	// e.DELETE("/users/:id", controllers.DeleteUserController)
-	// e.PUT("/users/:id", controllers.UpdateUserController)
+	e.DELETE("/users/:id", controllers.DeleteUserController)
+	e.PUT("/users/:id", controllers.UpdateUserController)
 
 	e.POST("/login", controllers.LoginUserController) // Create token
 
 	e.GET("/campaigns", controllers.GetCampaigns)
 	e.GET("/campaigns/:id", controllers.GetCampaign)
-	//e.POST("/campaigns", controllers.CreateCampaign)
+	e.POST("/campaigns", controllers.CreateCampaign)
 
 	e.GET("/donations", controllers.GetDonations)
-	// e.GET("/donations/:id", controllers.GetDonationByID)
-	// e.GET("/donations/user/:id", controllers.GetDonationsByUserID)
-	// e.POST("/donations", controllers.CreateDonation)
+	e.GET("/donations/:id", controllers.GetDonationByID)
+	e.GET("/donations/user/:id", controllers.GetDonationsByUserID)
+	e.POST("/donations", controllers.CreateDonation)
 
 	//Logger Middleware
 	middleware.LogMiddleware(e)
