@@ -1,6 +1,8 @@
 package main
 
-import "api-donasi/routes"
+import (
+	"api-donasi/routes"
+)
 
 func main() {
 

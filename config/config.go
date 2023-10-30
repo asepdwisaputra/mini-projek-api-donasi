@@ -3,7 +3,10 @@ package config
 import (
 	"api-donasi/models"
 	"fmt"
+	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -13,6 +16,12 @@ var (
 )
 
 func init() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic(err.Error())
+		log.Fatalf("Cannot load .env file. Err: %s", err)
+	}
+
 	InitDB()
 	InitialMigration()  // User
 	InitialMigration2() // Campaign
@@ -30,11 +39,16 @@ type Config struct {
 func InitDB() {
 
 	config := Config{
-		DB_Username: "root",
-		DB_Password: "",
-		DB_Port:     "3306",
-		DB_Host:     "localhost",
-		DB_Name:     "mini-project",
+		// DB_Username: "DB_USER",
+		// DB_Password: "DB_PASSWORD",
+		// DB_Port:     "DB_PORT",
+		// DB_Host:     "DB_HOST",
+		// DB_Name:     "DB_NAME",
+		DB_Username: os.Getenv("DB_USER"),
+		DB_Password: os.Getenv("DB_PASSWORD"),
+		DB_Port:     os.Getenv("DB_PORT"),
+		DB_Host:     os.Getenv("DB_HOST"),
+		DB_Name:     os.Getenv("DB_NAME"),
 	}
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",

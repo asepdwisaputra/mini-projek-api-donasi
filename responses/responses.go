@@ -20,13 +20,21 @@ type ResponseCampaign struct {
 	User           ResponseUser `json:"user"`
 }
 
+type ResponseCampaignDonation struct {
+	ID             int     `json:"id"`
+	Title          string  `json:"title"`
+	Description    string  `json:"description"`
+	Photo          string  `json:"photo"`
+	TotalCollected float64 `json:"total_collected"`
+}
+
 type ResponseDonation struct {
 	ID     int       `json:"id"`
 	Amount float64   `json:"amount"`
 	Date   time.Time `json:"date"`
 	//Status string    `json:"status"`
-	User     ResponseUser     `json:"user"`
-	Campaign ResponseCampaign `json:"campaign"`
+	User     ResponseUser             `json:"user"`
+	Campaign ResponseCampaignDonation `json:"campaign"`
 }
 
 // Fungsi Respon untuk User
@@ -78,17 +86,17 @@ func GetDonationResponse(donations []models.Donation) []ResponseDonation {
 				Name:  donation.User.Name,
 				Email: donation.User.Email,
 			},
-			Campaign: ResponseCampaign{
+			Campaign: ResponseCampaignDonation{
 				ID:             donation.Campaign.ID,
 				Title:          donation.Campaign.Title,
 				Description:    donation.Campaign.Description,
 				Photo:          donation.Campaign.Photo,
 				TotalCollected: donation.Campaign.TotalCollected,
-				User: ResponseUser{
-					ID:    donation.User.ID,
-					Name:  donation.User.Name,
-					Email: donation.User.Email,
-				},
+				// User: ResponseUser{
+				// 	ID:    donation.User.ID,
+				// 	Name:  donation.User.Name,
+				// 	Email: donation.User.Email,
+				// },
 			},
 		})
 	}
